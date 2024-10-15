@@ -1,83 +1,138 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
 // Load images
-const bird = new Image();
-const bg = new Image();
-const fg = new Image();
-const pipeNorth = new Image();
-const pipeSouth = new Image();
+const birdImage = new Image();
+birdImage.src = 'cocomelon.png'; // Path to your bird image
 
-bird.src = "cocomelon.png";   // Bird image
-bg.src = "https://i.imgur.com/jUwKfbD.png";     // Background image
-fg.src = "https://i.imgur.com/ULkIVzO.png";     // Foreground image
-pipeNorth.src = "pipe.png"; // North pipe image
-pipeSouth.src = "pipe.png"; // South pipe image
+const pipeTopImage = new Image();
+pipeTopImage.src = 'pipe.png'; // Path to your top pipe image
 
-// Variables
-let gap = 85;
-let constant = pipeNorth.height + gap;
-let bX = 10;
-let bY = 150;
-let gravity = 1.5;
-let score = 0;
+const pipeBottomImage = new Image();
+pipeBottomImage.src = 'pipe.png'; // Path to your bottom pipe image
 
-// Pipe coordinates
-let pipes = [];
-
-pipes[0] = {
-    x: canvas.width,
-    y: 0
+const bird = {
+    x: 50,
+    y: 150,
+    width: 34,
+    height: 24,
+    gravity: 0.5,
+    lift: -10,
+    velocity: 0,
+    update() {
+        this.velocity += this.gravity;
+        this.y += this.velocity;
+        if (this.y + this.height >= canvas.height) {
+            this.y = canvas.height - this.height;
+        }
+        if (this.y <= 0) {
+            this.y = 0;
+        }
+    },
+    flap() {
+        this.velocity = this.lift;
+    },
+    draw() {
+        ctx.drawImage(birdImage, this.x, this.y, this.width, this.height);
+    }
 };
 
-// Key press event
-document.addEventListener("keydown", moveUp);
+const pipes = [];
+const pipeWidth = 80;
+const pipeGap = 150;
+let frameCount = 0;
+let score = 0;
+let gameOver = false;
 
-function moveUp() {
-    bY -= 25;
+function addPipe() {
+    const topHeight = Math.random() * (canvas.height - pipeGap - 20) + 10;
+    pipes.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: canvas.height - topHeight - pipeGap,
+        width: pipeWidth
+    });
 }
 
-// Draw function
-function draw() {
-    ctx.drawImage(bg, 0, 0);
+function updatePipes() {
+    pipes.forEach((pipe, index) => {
+        pipe.x -= 3;
 
-    for (let i = 0; i < pipes.length; i++) {
-        ctx.drawImage(pipeNorth, pipes[i].x, pipes[i].y);
-        ctx.drawImage(pipeSouth, pipes[i].x, pipes[i].y + constant);
-
-        pipes[i].x--;
-
-        if (pipes[i].x === 125) {
-            pipes.push({
-                x: canvas.width,
-                y: Math.floor(Math.random() * pipeNorth.height) - pipeNorth.height
-            });
-        }
-
-        // Detect collision
-        if (
-            (bX + bird.width >= pipes[i].x && bX <= pipes[i].x + pipeNorth.width &&
-            (bY <= pipes[i].y + pipeNorth.height || bY + bird.height >= pipes[i].y + constant)) ||
-            bY + bird.height >= canvas.height - fg.height
-        ) {
-            location.reload(); // Reload the game
-        }
-
-        if (pipes[i].x == 5) {
+        if (pipe.x + pipe.width < 0) {
+            pipes.splice(index, 1);
             score++;
         }
-    }
 
-    ctx.drawImage(fg, 0, canvas.height - fg.height);
-    ctx.drawImage(bird, bX, bY);
-
-    bY += gravity;
-
-    ctx.fillStyle = "#000";
-    ctx.font = "20px Verdana";
-    ctx.fillText("Score : " + score, 10, canvas.height - 20);
-
-    requestAnimationFrame(draw);
+        // Check for collision
+        if (
+            bird.x < pipe.x + pipe.width &&
+            bird.x + bird.width > pipe.x &&
+            (bird.y < pipe.top || bird.y + bird.height > canvas.height - pipe.bottom)
+        ) {
+            gameOver = true;
+        }
+    });
 }
 
-draw();
+function drawPipes() {
+    pipes.forEach(pipe => {
+        ctx.drawImage(pipeTopImage, pipe.x, 0, pipe.width, pipe.top);
+        ctx.drawImage(pipeBottomImage, pipe.x, canvas.height - pipe.bottom, pipe.width, pipe.bottom);
+    });
+}
+
+function drawScore() {
+    ctx.fillStyle = 'black';
+    ctx.font = '24px Arial';
+    ctx.fillText(`Score: ${score}`, 10, 30);
+}
+
+function resetGame() {
+    bird.y = 150;
+    bird.velocity = 0;
+    pipes.length = 0;
+    score = 0;
+    gameOver = false;
+}
+
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    bird.update();
+    bird.draw();
+    updatePipes();
+    drawPipes();
+    drawScore();
+
+    if (frameCount % 75 === 0) {
+        addPipe();
+    }
+
+    if (!gameOver) {
+        requestAnimationFrame(gameLoop);
+    } else {
+        ctx.fillStyle = 'black';
+        ctx.font = '48px Arial';
+        ctx.fillText('Game Over!', 80, canvas.height / 2);
+        ctx.font = '24px Arial';
+        ctx.fillText('Press R to Restart', 90, canvas.height / 2 + 40);
+    }
+    frameCount++;
+}
+
+window.addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+        bird.flap();
+    } else if (event.code === 'KeyR' && gameOver) {
+        resetGame();
+        gameLoop();
+    }
+});
+
+// Start the game loop when images are loaded
+birdImage.onload = () => {
+    pipeTopImage.onload = () => {
+        pipeBottomImage.onload = () => {
+            gameLoop();
+        };
+    };
+};
