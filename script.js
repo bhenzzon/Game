@@ -8,11 +8,11 @@ const fg = new Image();
 const pipeNorth = new Image();
 const pipeSouth = new Image();
 
-bird.src = "https://i.imgur.com/sRQ8G5C.png";   // Bird image
+bird.src = "cocomelon.png";   // Bird image
 bg.src = "https://i.imgur.com/jUwKfbD.png";     // Background image
 fg.src = "https://i.imgur.com/ULkIVzO.png";     // Foreground image
-pipeNorth.src = "https://i.imgur.com/hGfeq9x.png"; // North pipe image
-pipeSouth.src = "https://i.imgur.com/X8WUSAh.png"; // South pipe image
+pipeNorth.src = "pipe.png"; // North pipe image
+pipeSouth.src = "pipe.png"; // South pipe image
 
 // Variables
 let gap = 85;
