@@ -28,7 +28,7 @@
         const ctx = canvas.getContext('2d');
 
         // Game variables
-        let bird = { x: 50, y: 150, width: 20, height: 20, gravity: 0.6, lift: -10, velocity: 0 };
+        let bird = { x: 50, y: 150, width: 40, height: 40, gravity: 0.6, lift: -10, velocity: 0 };
         let pipes = [];
         let pipeWidth = 30;
         let pipeGap = 120;
@@ -36,12 +36,13 @@
         let score = 0;
         let gameOver = false;
 
-        // Load bird image (or just draw it as a square)    
+        // Load bird image
         let birdImage = new Image();
-        birdImage.src = 'cocomelon.png'; // Make sure the image is in the same folder as the HTML file
+        birdImage.src = 'character.png'; // Make sure the image is in the same folder as the HTML file
 
         function drawBird() {
-        ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
+            ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
+        }
 
         // Generate pipes
         function addPipe() {
