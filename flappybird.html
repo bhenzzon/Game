@@ -36,11 +36,12 @@
         let score = 0;
         let gameOver = false;
 
-        // Load bird image (or just draw it as a square)
+        // Load bird image (or just draw it as a square)    
+        let birdImage = new Image();
+        birdImage.src = 'cocomelon.png'; // Make sure the image is in the same folder as the HTML file
+
         function drawBird() {
-            ctx.fillStyle = '#FFCC00';
-            ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-        }
+        ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
 
         // Generate pipes
         function addPipe() {
