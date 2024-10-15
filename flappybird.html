@@ -38,7 +38,13 @@
 
         // Load bird image
         let birdImage = new Image();
-        birdImage.src = 'cocomelon.png'; // Make sure the image is in the same folder as the HTML file
+        birdImage.src = 'character.png'; // Make sure the image is in the same folder as the HTML file
+
+        // Ensure image is fully loaded before starting the game
+        birdImage.onload = function() {
+            // Start the game loop once the image is loaded
+            gameLoop();
+        };
 
         function drawBird() {
             ctx.drawImage(birdImage, bird.x, bird.y, bird.width, bird.height);
@@ -162,7 +168,6 @@
 
         // Start the game
         resetGame();
-        gameLoop();
     </script>
 </body>
 </html>
